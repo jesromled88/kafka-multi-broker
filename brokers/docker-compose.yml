@@ -2,12 +2,12 @@
 version: "3.9"
 
 x-common-env: &common-broker-env
-  CLUSTER_ID: "${CLUSTER_ID}"
+  CLUSTER_ID: "bB3Wk0ZhS7mdUSJyxexuQQ"
   KAFKA_PROCESS_ROLES: "broker"
   KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT"
   KAFKA_INTER_BROKER_LISTENER_NAME: "BROKER"
   KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-  KAFKA_CONTROLLER_QUORUM_VOTERS: "1001@${CONTROLER_SERVER}:29091,1002@${CONTROLER_SERVER}:29092,1003@${CONTROLER_SERVER}:29093"
+  KAFKA_CONTROLLER_QUORUM_VOTERS: "1001@controller1:29091,1002@controller2:29092,1003@controller3:29093"
   KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
   KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: ${KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS}
   KAFKA_LOG_RETENTION_HOURS: ${KAFKA_LOG_RETENTION_HOURS}
@@ -35,7 +35,7 @@ services:
       <<: *common-broker-env
       KAFKA_NODE_ID: "2001"
       KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9094,BROKER://0.0.0.0:28081,EXTERNAL://0.0.0.0:9091"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker1:9094,BROKER://${BROKER_SERVER}:28081,EXTERNAL://${BROKER_SERVER}:9091"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker1:9094,BROKER://broker1:28081,EXTERNAL://localhost:9091"
     ports:
       - "9091:9091"
       - "28081:28081"
@@ -46,6 +46,9 @@ services:
       interval: 10s
       timeout: 10s
       retries: 30
+    networks: 
+    - kafka-net
+
 
   broker2:
     container_name: kafka-broker2
@@ -60,7 +63,7 @@ services:
       <<: *common-broker-env
       KAFKA_NODE_ID: "2002"
       KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9094,BROKER://0.0.0.0:28082,EXTERNAL://0.0.0.0:9092"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker2:9094,BROKER://${BROKER_SERVER}:28082,EXTERNAL://${BROKER_SERVER}:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker2:9094,BROKER://broker2:28082,EXTERNAL://localhost:9092"
     ports:
       - "9092:9092"
       - "28082:28082"
@@ -73,7 +76,9 @@ services:
       interval: 10s
       timeout: 10s
       retries: 30
-      
+    networks: 
+    - kafka-net
+        
   broker3:
     image: "confluentinc/cp-kafka:7.8.0"
     restart: unless-stopped
@@ -87,7 +92,7 @@ services:
       <<: *common-broker-env
       KAFKA_NODE_ID: "2003"
       KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9094,BROKER://0.0.0.0:28083,EXTERNAL://0.0.0.0:9093"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker3:9094,BROKER://${BROKER_SERVER}:28083,EXTERNAL://${BROKER_SERVER}:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker3:9094,BROKER://broker3:28083,EXTERNAL://localhost:9093"
     ports:
       - "9093:9093"
       - "28083:28083"
@@ -101,6 +106,8 @@ services:
       interval: 10s
       timeout: 10s
       retries: 30
+    networks: 
+    - kafka-net  
   
   kafka-ui:
     container_name: kafka-ui
@@ -119,7 +126,8 @@ services:
       AUTH_TYPE: "LOGIN_FORM"
       SPRING_SECURITY_USER_NAME: ${KAFKA_UI_USER_NAME}
       SPRING_SECURITY_USER_PASSWORD: ${KAFKA_UI_USER_PASSWORD}
-
+    networks: 
+    - kafka-net
       
 volumes:
   broker1-data:
@@ -127,4 +135,6 @@ volumes:
   broker3-data:
 
     
-  
+networks:
+  kafka-net:
+    external: true

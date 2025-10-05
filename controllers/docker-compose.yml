@@ -6,7 +6,7 @@ x-common-env: &common-controller-env
     KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
     KAFKA_INTER_BROKER_LISTENER_NAME: "BROKER"
     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,BROKER:PLAINTEXT"
-    KAFKA_CONTROLLER_QUORUM_VOTERS: "1001@${CONTROLLER_SERVER}:29091,1002@${CONTROLLER_SERVER}:29092,1003@${CONTROLLER_SERVER}:29093"
+    KAFKA_CONTROLLER_QUORUM_VOTERS: "1001@controller1:29091,1002@controller2:29092,1003@controller3:29093"
     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
     KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: ${KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS}
     KAFKA_LOG_RETENTION_HOURS: ${KAFKA_LOG_RETENTION_HOURS}
@@ -45,6 +45,8 @@ services:
       interval: 10s
       timeout: 10s
       retries: 30
+    networks: 
+    - kafka-net
 
   controller2:
     image: "confluentinc/cp-kafka:7.8.0"
@@ -69,7 +71,9 @@ services:
       interval: 10s
       timeout: 10s
       retries: 30
-    
+    networks: 
+    - kafka-net
+       
   controller3:
     image: "confluentinc/cp-kafka:7.8.0"
     container_name: kafka-controller3
@@ -94,8 +98,14 @@ services:
     depends_on:
       - controller1
       - controller2
+    networks: 
+    - kafka-net
+    
 volumes:
   controller1:
   controller2:
   controller3:
       
+networks:
+  kafka-net:
+    external: true

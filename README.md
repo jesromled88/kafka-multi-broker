@@ -1,7 +1,11 @@
 # Description
-This project provides a mult-broker and multi-controller setup of kafka with Confluentinc kafka docker containers. It also exposed the kafka ui through the  provectuslabs kafka-ui image. 
+This is a fork from https://github.com/scneba/kafka-multi-broker
+
+This project provides a mult-broker and multi-controller setup of kafka with Kafka docker containers. 
+It also exposed the kafka ui through the  provectuslabs kafka-ui image. 
+
+I change from Confluentinc/kafka to apache/kafka.
+
 
 # Setup
-- Copy the .env.example files to .env in both brokers and controllers folders
-- Update the variables to correct env variables.
-- Run docker compose up -d in both folders
+- Run docker compose up -d in both folders /broker & /controllers.
